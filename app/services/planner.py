@@ -1,8 +1,11 @@
 import json
+import logging
 from importlib import import_module
 from collections import defaultdict
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 ALLOWED_RESOURCE_TYPES = {"youtube", "website", "book"}
@@ -223,12 +226,14 @@ def _normalize_generated_plan(profile: dict, generated: dict) -> dict:
 
 def _llm_schedule(profile: dict) -> dict | None:
     if not settings.google_api_key:
+        logger.info("No GOOGLE_API_KEY set; using fallback planner")
         return None
 
     try:
         chat_google_module = import_module("langchain_google_genai")
         chat_google_class = getattr(chat_google_module, "ChatGoogleGenerativeAI")
-    except Exception:
+    except Exception as exc:
+        logger.warning(f"Failed to import langchain_google_genai: {exc}; using fallback planner")
         return None
 
     model = chat_google_class(
@@ -247,17 +252,23 @@ def _llm_schedule(profile: dict) -> dict | None:
     )
 
     response = model.invoke(prompt)
-    content = response.content if isinstance(response.content, str) else str(response.content)
+    content = getattr(response, "content", str(response))
+    logger.info(f"Gemini response received (length: {len(content)})")
+
     start_idx = content.find("{")
     end_idx = content.rfind("}")
-    if start_idx == -1 or end_idx == -1:
+    if start_idx == -1 or end_idx == -1 or end_idx <= start_idx:
+        logger.warning("Gemini response missing JSON; using fallback planner")
         return None
 
     raw_json = content[start_idx : end_idx + 1]
     try:
         parsed = json.loads(raw_json)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as exc:
+        logger.warning(f"Gemini JSON parse failed: {exc}; using fallback planner")
         return None
+
+    logger.info("Gemini plan generation succeeded")
 
     return _normalize_generated_plan(profile, parsed)
 
@@ -266,4 +277,5 @@ def build_skill_tree_and_schedule(profile: dict) -> dict:
     llm_plan = _llm_schedule(profile)
     if llm_plan:
         return llm_plan
+    logger.info(f"Using fallback deterministic planner for skill: {profile.get('target_skill')}")
     return _fallback_schedule(profile)

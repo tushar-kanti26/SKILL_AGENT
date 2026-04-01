@@ -47,6 +47,23 @@ Server starts at `http://127.0.0.1:8000` by default.
 
 UI is available at `http://127.0.0.1:8000/app`.
 
+## Deploy On Render (Docker)
+
+1. Push this repo to GitHub.
+2. In Render, create a new **Web Service** from your GitHub repo.
+3. Render will detect the `Dockerfile` automatically.
+4. Set environment variables in Render:
+  - `DATABASE_URL` = your Render PostgreSQL URL
+  - `GOOGLE_API_KEY` = your Gemini API key (optional, fallback works without it)
+  - `GEMINI_MODEL` = `gemini-2.5-flash-lite`
+5. Deploy. The app runs with:
+  - `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+After deploy:
+- API health: `/`
+- Swagger docs: `/docs`
+- Chat UI: `/app`
+
 ## API Flow
 
 1. Chat to collect profile

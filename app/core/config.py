@@ -20,5 +20,20 @@ class Settings:
             return self.database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
         return self.database_url
 
+    def masked_database_url(self) -> str:
+        url = self.database_url
+        if "@" not in url:
+            return url
+        prefix, suffix = url.split("@", 1)
+        if "://" in prefix:
+            scheme, credentials = prefix.split("://", 1)
+            if ":" in credentials:
+                username = credentials.split(":", 1)[0]
+                return f"{scheme}://{username}:***@{suffix}"
+        return url
+
+    def uses_local_default_database(self) -> bool:
+        return self.database_url.startswith("postgresql+psycopg2://postgres:postgres@localhost") or self.database_url.startswith("postgresql://postgres:postgres@localhost")
+
 
 settings = Settings()
