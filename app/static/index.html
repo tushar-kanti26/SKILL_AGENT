@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skill Learning Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div class="bg-shape shape-a"></div>
+  <div class="bg-shape shape-b"></div>
+
+  <main class="layout">
+    <section class="card chat-card">
+      <h1>Skill Learning Copilot</h1>
+      <p class="sub">Chat your goals, generate a plan, and track progress.</p>
+
+      <div class="inline-form">
+        <input id="nameInput" placeholder="Your name" />
+        <button id="setNameBtn">Start</button>
+      </div>
+
+      <div id="chatBox" class="chat-box"></div>
+
+      <div class="inline-form">
+        <input id="messageInput" placeholder="Type a message like: skill: Python" />
+        <button id="sendBtn">Send</button>
+      </div>
+
+      <div class="inline-form">
+        <button id="generatePlanBtn" class="accent">Generate Plan</button>
+      </div>
+    </section>
+
+    <section class="card side-card">
+      <h2>Plan + Progress</h2>
+      <div id="profileView" class="block"></div>
+      <div id="planView" class="block"></div>
+      <div id="progressView" class="block"></div>
+      <div id="tasksView" class="tasks"></div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
